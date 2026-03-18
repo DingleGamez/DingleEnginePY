@@ -5,7 +5,7 @@ from Components.MeshRenderer import MeshRenderer
 from OpenGL.GL import *
 from pyglm import glm
 
-class MeshRendererSystem:
+class Renderer:
     def __init__(self, camera, scene):
         self.camera = camera
         self.scene = scene
