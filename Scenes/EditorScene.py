@@ -30,9 +30,9 @@ class EditorScene(Scene):
         glFrontFace(GL_CW)
         glCullFace(GL_FRONT)
 
-        for i in range(-4, 4):
-            for j in range(-4, 4):
-                for v in range(-4, 4):
+        for i in range(-1, 1):
+            for j in range(-1, 1):
+                for v in range(-1, 1):
                     cube = GameObject(f"cube{i + 5}",
                     Transform(glm.vec3(i, j, v), glm.vec3(1.0, 1.0, 1.0), glm.vec3((i * j * v) * 15, 0.0, 0.0)))
                     cube.addComponent(MeshRenderer(Mesh(), "Resources/awesomeface.png"))
@@ -51,14 +51,14 @@ class EditorScene(Scene):
             start_time = current_time
 
     def update(self):
-        self.DrawFPS()
+        # self.DrawFPS()
         glClearColor(0.25, 0.25, 0.25, 1.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         for i in range(len(self.objects)):
             object = self.objects[i]
             rotation = object.transform.rotation
-            rotation.x += 5
+            rotation.x += 0.1
 
             # position = object.transform.position
             # position.z = math.sin((i * 25) - time.time())
