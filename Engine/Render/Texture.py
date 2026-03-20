@@ -1,7 +1,6 @@
 from PIL import Image
 from OpenGL.GL import *
 import numpy as np
-import os
 
 class Texture:
     def __init__(self):
@@ -12,8 +11,6 @@ class Texture:
         if path:
             self.path = path
 
-            # print("Path:", self.path)
-            # print("Exists:", os.path.exists(self.path))
             image = Image.open(self.path)
             image = image.transpose(Image.FLIP_TOP_BOTTOM)  # Flip for OpenGL coordinates
             data = image.convert("RGBA").tobytes()

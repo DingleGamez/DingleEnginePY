@@ -1,9 +1,14 @@
+from Engine.Render.Component import Component
+from Engine.Render.Shader import Shader
+from Engine.Render.Texture import Texture
+
 import numpy
 from OpenGL.GL import *
 import numpy as np
 
-class Mesh:
-    def __init__(self):
+class Mesh(Component):
+    def __init__(self, texPath):
+        super().__init__()
 
         self.vertices = np.array([
             -0.5, -0.5, 0.5, 0.0, 0.0,
@@ -60,9 +65,10 @@ class Mesh:
         self.VBO = glGenBuffers(1)
         self.EBO = glGenBuffers(1)
 
-        self.setup()
+        self.texture = Texture()
+        self.texture.init(texPath)
 
-    def setup(self):
+    def start(self):
         glBindVertexArray(self.VAO)
 
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO)
@@ -78,17 +84,5 @@ class Mesh:
 
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(3 * self.vertices.itemsize))
         glEnableVertexAttribArray(1)
-
-        glBindVertexArray(0)
-
-    def draw(self):
-        glBindVertexArray(self.VAO)
-
-        glDrawElements(
-            GL_TRIANGLES,
-            len(self.indices),
-            GL_UNSIGNED_INT,
-            None
-        )
 
         glBindVertexArray(0)

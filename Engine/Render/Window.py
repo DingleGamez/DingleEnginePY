@@ -1,7 +1,6 @@
 from OpenGL.raw.GL.VERSION.GL_1_0 import glViewport
 
-from Engine.Render.Scene import Scene
-from Scenes.EditorScene import EditorScene
+from Engine.Scenes.EditorScene import EditorScene
 
 import glfw
 

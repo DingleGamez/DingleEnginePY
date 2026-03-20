@@ -1,4 +1,3 @@
-from Engine.Object.GameObject import GameObject
 from Engine.Render.Window import Window
 
 def main():

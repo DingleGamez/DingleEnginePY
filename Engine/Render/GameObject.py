@@ -1,5 +1,3 @@
-from Components.Transform import Transform
-
 class GameObject:
     def __init__(self, name, transform):
         self.components = {}
@@ -10,7 +8,7 @@ class GameObject:
         componentType = type(component)
         component.gameObject = self
         self.components[componentType] = component
-        # component.start()
+        component.start()
         return component
 
     def getComponent(self, component_type):

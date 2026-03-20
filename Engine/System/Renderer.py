@@ -1,6 +1,5 @@
 from Engine.Render.Shader import Shader
-from Components.Transform import Transform
-from Components.MeshRenderer import MeshRenderer
+from Engine.Components.Mesh import Mesh
 
 from OpenGL.GL import *
 from pyglm import glm
@@ -9,27 +8,42 @@ class Renderer:
     def __init__(self, camera, scene):
         self.camera = camera
         self.scene = scene
+        self.shader = Shader()
+        self.shader.compile(None, None)
+
+        self.start()
+
+    def start(self):
+        self.shader.use()
+
+        projection = self.camera.getProjectionMatrix()
+        self.shader.uploadMat4("projection", glm.value_ptr(projection))
 
     def update(self):
         objects = self.scene.objects
-
         for object in objects:
-            renderer = object.getComponent(MeshRenderer)
+            mesh = object.getComponent(Mesh)
             transform = object.transform
-
             model = transform.getModelMatrix()
             view = self.camera.getViewMatrix()
             projection = self.camera.getProjectionMatrix()
-            shader = renderer.shader
 
-            shader.use()
+            self.shader.use()
 
             glActiveTexture(GL_TEXTURE0)
-            renderer.texture.bind()
-            shader.uploadTexture("texSampler", 0)
+            mesh.texture.bind()
+            self.shader.uploadTexture("texSampler", 0)
 
-            shader.uploadMat4("model", glm.value_ptr(model))
-            shader.uploadMat4("view", glm.value_ptr(view))
-            shader.uploadMat4("projection", glm.value_ptr(projection))
+            self.shader.uploadMat4("model", glm.value_ptr(model))
+            self.shader.uploadMat4("view", glm.value_ptr(view))
 
-            renderer.mesh.draw()
+            glBindVertexArray(mesh.VAO)
+
+            glDrawElements(
+                GL_TRIANGLES,
+                len(mesh.indices),
+                GL_UNSIGNED_INT,
+                None
+            )
+
+            glBindVertexArray(0)

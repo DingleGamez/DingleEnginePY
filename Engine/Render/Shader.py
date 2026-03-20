@@ -1,41 +1,9 @@
 from OpenGL.GL import *
+import os
 
 class Shader:
     def __init__(self):
         self.shaderProgram = None
-        self.vertexShaderSource = """
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec2 aTexCoord;
-
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 projection;
-
-        out vec2 TexCoord;
-
-        void main() 
-        {
-            gl_Position = projection * view * model * vec4(aPos, 1.0);
-            
-            TexCoord = aTexCoord;
-        }
-        """
-        self.fragmentShaderSource = """
-        #version 330 core
-        out vec4 FragColor;
-
-        in vec2 TexCoord;
-
-        uniform sampler2D texSampler;
-
-        void main() 
-        {
-            FragColor = texture(texSampler, TexCoord);
-            if(FragColor.a < 0.1)
-                discard;
-        }
-        """
 
     def use(self):
         glUseProgram(self.shaderProgram)
@@ -43,6 +11,11 @@ class Shader:
     def detach(self):
         glUseProgram(0)
 
+    def loadShaderSource(self, path):
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f"Shader file not found: {path}")
+        with open(path, 'r', encoding='utf-8') as file:
+            return file.read()
 
     def compileShader(self, source, shaderType):
         shader = glCreateShader(shaderType)
@@ -56,9 +29,11 @@ class Shader:
             raise RuntimeError(f"{shaderTypeStr} SHADER COMPILE ERROR:\n{error}")
         return shader
 
-    def compile(self):
-        vertexShader = self.compileShader(self.vertexShaderSource, GL_VERTEX_SHADER)
-        fragmentShader = self.compileShader(self.fragmentShaderSource, GL_FRAGMENT_SHADER)
+    def compile(self, vertexPath, fragmentPath):
+        vertexShaderSource = self.loadShaderSource(vertexPath if vertexPath else "Engine/Resources/Shaders/DefaultVertex.glsl")
+        fragmentShaderSource = self.loadShaderSource(fragmentPath if fragmentPath else "Engine/Resources/Shaders/DefaultFragment.glsl")
+        vertexShader = self.compileShader(vertexShaderSource, GL_VERTEX_SHADER)
+        fragmentShader = self.compileShader(fragmentShaderSource, GL_FRAGMENT_SHADER)
 
         self.shaderProgram = glCreateProgram()
         glAttachShader(self.shaderProgram, vertexShader)
