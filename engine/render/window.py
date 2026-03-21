@@ -1,6 +1,9 @@
 from engine.scenes.editor_scene import EditorScene
 
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
 import glfw
+from pyglm import glm
 from OpenGL.GL import *
 
 class Window:
@@ -47,5 +50,6 @@ class Window:
 
             glfw.swap_buffers(self.window)
             glfw.poll_events()
+
         glfw.destroy_window(self.window)
         glfw.terminate()

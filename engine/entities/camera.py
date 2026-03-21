@@ -5,7 +5,7 @@ class Camera:
     def __init__(self):
         self.view = glm.mat4(1.0)
         self.projection = glm.mat4(1.0)
-        self.position = glm.vec3(0.0, 0.0, 4.0)
+        self.position = glm.vec3(0.0, 0.0, 6.0)
         self.yaw, self.pitch, = -90.0, 0.0
         self.cameraFront = glm.vec3(0.0, 0.0, -1.0)
         self.adjust_projection()

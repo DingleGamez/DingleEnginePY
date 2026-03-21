@@ -12,14 +12,17 @@ uniform sampler2D texSampler;
 void main()
 {
      // ambient
-    float ambientStrength = 0.2;
+    float ambientStrength = 0.15;
     vec3 ambient = ambientStrength * lightColor;
+
+    // texture
+    vec4 texColor = texture(texSampler, TexCoord);
+    vec3 texRGB = texture(texSampler, TexCoord).rgb;
 
     // diffuse
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 texColor = texture(texSampler, TexCoord).rgb;
     vec3 diffuse = diff * lightColor;
 
     // specular
@@ -29,9 +32,9 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * texColor;
+    vec3 result = (ambient + diffuse + specular) * texRGB;
 
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(result, texColor.a);
     if(FragColor.a < 0.1)
         discard;
 }

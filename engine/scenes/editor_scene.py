@@ -15,26 +15,45 @@ class EditorScene(Scene):
         super().__init__()
 
     def start(self):
-        cube = Entity(0)
-        cube.add_component(Mesh("resources/textures/wood.png"))
-        self.entities = np.append(self.entities, cube)
+        textures = [
+            "resources/textures/wood.png",
+            "resources/textures/brickwall.jpg",
+            "resources/textures/block_solid.png",
+        ]
 
-        cube1 = Entity(1)
-        cube1.transform.position = glm.vec3(1.0,0.0,0.0)
-        cube1.add_component(Mesh("resources/textures/brickwall.jpg"))
-        self.entities = np.append(self.entities, cube1)
+        id = 0
+        curr_tex = 0
+        count = 1
 
-        cube2 = Entity(2)
-        cube2.transform.position = glm.vec3(-1.0, 0.0, 0.0)
-        cube2.add_component(Mesh("resources/textures/block_solid.png"))
-        self.entities = np.append(self.entities, cube2)
+        for x in range(0,1):
+            for y in range(0,1):
+                cube = Entity(id)
+                cube.transform.position = glm.vec3(float(x),float(y),0.5)
+                cube.add_component(Mesh(textures[curr_tex]))
+                self.entities = np.append(self.entities, cube)
+
+                id += 1
+                curr_tex += 1
+
+                if curr_tex >= 3:
+                    curr_tex = 0
+
+        face = Entity(id)
+        face.transform.position = glm.vec3(0.0,0.0,3.0)
+        face.transform.scale = glm.vec3(1.0,1.0,1.0) * 0.5
+        face.add_component(Mesh("resources/textures/awesomeface.png"))
+        self.entities = np.append(self.entities, face)
 
         self.renderer.start()
 
     def update(self):
-        for entity in self.entities:
+        for i in range(len(self.entities) - 1):
+            entity = self.entities[i]
             transform = entity.transform
 
-            transform.rotation += glm.vec3(0.025,0.0,0.0) * 1.0
+            transform.rotation += glm.vec3(0.025,0.025,0.025) * 10.0
+
+        face_transform = self.entities[len(self.entities) - 1].transform
+        face_transform.rotation += glm.vec3(0.0, 0.0, 0.025) * 100.0
 
         self.renderer.update()
