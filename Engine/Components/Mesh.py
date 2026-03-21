@@ -1,88 +1,88 @@
-from Engine.Render.Component import Component
-from Engine.Render.Shader import Shader
-from Engine.Render.Texture import Texture
+from engine.components.component import Component
+from engine.render.texture import Texture
 
-import numpy
-from OpenGL.GL import *
 import numpy as np
+from OpenGL.GL import *
 
 class Mesh(Component):
-    def __init__(self, texPath):
+    def __init__(self, tex_path=None):
         super().__init__()
 
         self.vertices = np.array([
-            -0.5, -0.5, 0.5, 0.0, 0.0,
-            0.5, -0.5, 0.5, 1.0, 0.0,
-            0.5, 0.5, 0.5, 1.0, 1.0,
-            -0.5, 0.5, 0.5, 0.0, 1.0,
+            # FRONT (+Z)
+            -0.5, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0,
+            0.5, -0.5, 0.5, 0.0, 0.0, 1.0, 1.0, 0.0,
+            0.5, 0.5, 0.5, 0.0, 0.0, 1.0, 1.0, 1.0,
+            -0.5, 0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0,
 
             # BACK (-Z)
-            -0.5, -0.5, -0.5, 1.0, 0.0,
-            0.5, -0.5, -0.5, 0.0, 0.0,
-            0.5, 0.5, -0.5, 0.0, 1.0,
-            -0.5, 0.5, -0.5, 1.0, 1.0,
+            -0.5, -0.5, -0.5, 0.0, 0.0, -1.0, 1.0, 0.0,
+            0.5, -0.5, -0.5, 0.0, 0.0, -1.0, 0.0, 0.0,
+            0.5, 0.5, -0.5, 0.0, 0.0, -1.0, 0.0, 1.0,
+            -0.5, 0.5, -0.5, 0.0, 0.0, -1.0, 1.0, 1.0,
 
             # LEFT (-X)
-            -0.5, 0.5, 0.5, 1.0, 0.0,
-            -0.5, 0.5, -0.5, 1.0, 1.0,
-            -0.5, -0.5, -0.5, 0.0, 1.0,
-            -0.5, -0.5, 0.5, 0.0, 0.0,
+            -0.5, 0.5, 0.5, -1.0, 0.0, 0.0, 1.0, 0.0,
+            -0.5, 0.5, -0.5, -1.0, 0.0, 0.0, 1.0, 1.0,
+            -0.5, -0.5, -0.5, -1.0, 0.0, 0.0, 0.0, 1.0,
+            -0.5, -0.5, 0.5, -1.0, 0.0, 0.0, 0.0, 0.0,
 
             # RIGHT (+X)
-            0.5, 0.5, 0.5, 1.0, 0.0,
-            0.5, 0.5, -0.5, 1.0, 1.0,
-            0.5, -0.5, -0.5, 0.0, 1.0,
-            0.5, -0.5, 0.5, 0.0, 0.0,
+            0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0,
+            0.5, 0.5, -0.5, 1.0, 0.0, 0.0, 1.0, 1.0,
+            0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, 1.0,
+            0.5, -0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 0.0,
 
             # BOTTOM (-Y)
-            -0.5, -0.5, -0.5, 0.0, 1.0,
-            0.5, -0.5, -0.5, 1.0, 1.0,
-            0.5, -0.5, 0.5, 1.0, 0.0,
-            -0.5, -0.5, 0.5, 0.0, 0.0,
+            -0.5, -0.5, -0.5, 0.0, -1.0, 0.0, 0.0, 1.0,
+            0.5, -0.5, -0.5, 0.0, -1.0, 0.0, 1.0, 1.0,
+            0.5, -0.5, 0.5, 0.0, -1.0, 0.0, 1.0, 0.0,
+            -0.5, -0.5, 0.5, 0.0, -1.0, 0.0, 0.0, 0.0,
 
             # TOP (+Y)
-            -0.5, 0.5, -0.5, 0.0, 1.0,
-            0.5, 0.5, -0.5, 1.0, 1.0,
-            0.5, 0.5, 0.5, 1.0, 0.0,
-            -0.5, 0.5, 0.5, 0.0, 0.0
-        ], dtype=np.float32)
+            -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 1.0,
+            0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 1.0, 1.0,
+            0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 1.0, 0.0,
+            -0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 0.0,
+        ], dtype = np.float32)
 
         self.indices = np.array([
-            0, 1, 2, 2, 3, 0,  # front (+Z)
+            0, 1, 2, 2, 3, 0,
+            5, 4, 7, 7, 6, 5,
+            8, 9, 10, 10, 11, 8,
+            13, 12, 15, 15, 14, 13,
+            16, 17, 18, 18, 19, 16,
+            21, 20, 23, 23, 22, 21
+        ], dtype = np.int32)
 
-            5, 4, 7, 7, 6, 5,  # back (-Z) ✅ flipped
+        self.vao, self.vbo, self.ebo = 0, 0, 0
 
-            8, 9, 10, 10, 11, 8,  # left (-X)
-
-            13, 12, 15, 15, 14, 13,  # right (+X) ✅ flipped
-
-            16, 17, 18, 18, 19, 16,  # bottom (-Y)
-
-            21, 20, 23, 23, 22, 21  # top (+Y) ✅ flipped
-        ], dtype=numpy.int32)
-
-        self.VAO = glGenVertexArrays(1)
-        self.VBO = glGenBuffers(1)
-        self.EBO = glGenBuffers(1)
-
-        self.texture = Texture()
-        self.texture.init(texPath)
+        self.texture = Texture(tex_path)
 
     def start(self):
-        glBindVertexArray(self.VAO)
+        self.vao = glGenVertexArrays(1)
+        self.vbo = glGenBuffers(1)
+        self.ebo = glGenBuffers(1)
 
-        glBindBuffer(GL_ARRAY_BUFFER, self.VBO)
+        glBindVertexArray(self.vao)
+
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
         glBufferData(GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW)
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.EBO)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.ebo)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.indices.nbytes, self.indices, GL_STATIC_DRAW)
 
-        stride = 5 * self.vertices.itemsize
+        stride = 8 * self.vertices.itemsize
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(0))
         glEnableVertexAttribArray(0)
 
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(3 * self.vertices.itemsize))
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(3 * self.vertices.itemsize))
         glEnableVertexAttribArray(1)
 
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(6 * self.vertices.itemsize))
+        glEnableVertexAttribArray(2)
+
         glBindVertexArray(0)
+
+        self.texture.start()

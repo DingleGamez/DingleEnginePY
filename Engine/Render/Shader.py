@@ -1,51 +1,65 @@
+from pathlib import Path
+
+from pyglm import glm
 from OpenGL.GL import *
-import os
 
 class Shader:
-    def __init__(self):
-        self.shaderProgram = None
+    def __init__(self, path):
+        self.path = path
+        self.vertex_src = None
+        self.fragment_src = None
+        self.shader_program = None
+
+        self.start()
 
     def use(self):
-        glUseProgram(self.shaderProgram)
+        glUseProgram(self.shader_program)
 
     def detach(self):
         glUseProgram(0)
 
-    def loadShaderSource(self, path):
-        if not os.path.isfile(path):
-            raise FileNotFoundError(f"Shader file not found: {path}")
-        with open(path, 'r', encoding='utf-8') as file:
-            return file.read()
+    def start(self):
+        path = self.path.split(".")
 
-    def compileShader(self, source, shaderType):
-        shader = glCreateShader(shaderType)
-        glShaderSource(shader, source)
-        glCompileShader(shader)
+        vert_path = Path(path[0] + "_vert." + path[1])
+        if not vert_path.exists(): raise FileNotFoundError(f"Shader file not found: {vert_path}")
+        vert_src = vert_path.read_text()
 
-        result = glGetShaderiv(shader, GL_COMPILE_STATUS)
-        if not result:
-            error = glGetShaderInfoLog(shader).decode()
-            shaderTypeStr = "VERTEX" if shaderType == GL_VERTEX_SHADER else "FRAGMENT"
-            raise RuntimeError(f"{shaderTypeStr} SHADER COMPILE ERROR:\n{error}")
-        return shader
+        frag_path = Path(path[0] + "_frag." + path[1])
+        if not frag_path.exists(): raise FileNotFoundError(f"Shader file not found: {frag_path}")
+        frag_src = frag_path.read_text()
 
-    def compile(self, vertexPath, fragmentPath):
-        vertexShaderSource = self.loadShaderSource(vertexPath if vertexPath else "Engine/Resources/Shaders/DefaultVertex.glsl")
-        fragmentShaderSource = self.loadShaderSource(fragmentPath if fragmentPath else "Engine/Resources/Shaders/DefaultFragment.glsl")
-        vertexShader = self.compileShader(vertexShaderSource, GL_VERTEX_SHADER)
-        fragmentShader = self.compileShader(fragmentShaderSource, GL_FRAGMENT_SHADER)
+        self.vertex_src = vert_src
+        self.fragment_src = frag_src
 
-        self.shaderProgram = glCreateProgram()
-        glAttachShader(self.shaderProgram, vertexShader)
-        glAttachShader(self.shaderProgram, fragmentShader)
-        glLinkProgram(self.shaderProgram)
-        glDeleteShader(vertexShader)
-        glDeleteShader(fragmentShader)
+    def compile(self):
+        vertex_shader = glCreateShader(GL_VERTEX_SHADER)
+        glShaderSource(vertex_shader, self.vertex_src)
+        glCompileShader(vertex_shader)
 
-    def uploadMat4(self, name, mat):
-        location = glGetUniformLocation(self.shaderProgram, name)
-        glUniformMatrix4fv(location, 1, GL_FALSE, mat)
+        fragment_shader = glCreateShader(GL_FRAGMENT_SHADER)
+        glShaderSource(fragment_shader, self.fragment_src)
+        glCompileShader(fragment_shader)
 
-    def uploadTexture(self, name, array):
-        location = glGetUniformLocation(self.shaderProgram, name)
-        glUniform1i(location, array)
+        self.shader_program = glCreateProgram()
+        glAttachShader(self.shader_program, vertex_shader)
+        glAttachShader(self.shader_program, fragment_shader)
+        glLinkProgram(self.shader_program)
+        glDeleteShader(vertex_shader)
+        glDeleteShader(fragment_shader)
+
+    def upload_mat4(self, name, data):
+        location = glGetUniformLocation(self.shader_program, name)
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm.value_ptr(data))
+
+    def upload_texture(self, name, data):
+        location = glGetUniformLocation(self.shader_program, name)
+        glUniform1i(location, data)
+
+    def upload_vec3v(self, name, data):
+        location = glGetUniformLocation(self.shader_program, name)
+        glUniform3fv(location, 1, glm.value_ptr(data))
+
+    def upload_vec3(self, name, x, y, z):
+        location = glGetUniformLocation(self.shader_program, name)
+        glUniform3f(location, x, y, z)
