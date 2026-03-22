@@ -1,11 +1,15 @@
+import time
+
 from engine.entities.camera import Camera
 from engine.scenes.scene import Scene
 from engine.entities.entity import Entity
-from engine.components.mesh import Mesh
+from engine.components.model import Model
 from engine.render.renderer import Renderer
 
 import numpy as np
+import math
 from pyglm import glm
+import glfw
 
 class EditorScene(Scene):
     def __init__(self):
@@ -15,45 +19,44 @@ class EditorScene(Scene):
         super().__init__()
 
     def start(self):
-        textures = [
-            "resources/textures/wood.png",
-            "resources/textures/brickwall.jpg",
-            "resources/textures/block_solid.png",
+        models = [
+            "resources/models/charmander/model.obj",
+            "resources/models/pikachu/model.obj",
+            "resources/models/cubone/model.obj"
+        ]
+        sizes = [
+            0.75, 0.65, 1,
+        ]
+        offsets_y = [
+            -0.25,0.0,0.0
         ]
 
         id = 0
-        curr_tex = 0
+        curr = 0
         count = 1
 
-        for x in range(0,1):
-            for y in range(0,1):
+        for x in range(-count,count + 1):
+            for y in range(-count,count + 1):
                 cube = Entity(id)
-                cube.transform.position = glm.vec3(float(x),float(y),0.5)
-                cube.add_component(Mesh(textures[curr_tex]))
+                cube.transform.position = glm.vec3(float(x * 0.75),float(y * 0.75) + offsets_y[curr],0.0)
+                cube.transform.scale = glm.vec3(1.0,1.0,1.0) * sizes[curr]
+                cube.add_component(Model(models[curr]))
                 self.entities = np.append(self.entities, cube)
 
                 id += 1
-                curr_tex += 1
+                curr += 1
 
-                if curr_tex >= 3:
-                    curr_tex = 0
-
-        face = Entity(id)
-        face.transform.position = glm.vec3(0.0,0.0,3.0)
-        face.transform.scale = glm.vec3(1.0,1.0,1.0) * 0.5
-        face.add_component(Mesh("resources/textures/awesomeface.png"))
-        self.entities = np.append(self.entities, face)
+                if curr >= 3:
+                    curr = 0
 
         self.renderer.start()
 
     def update(self):
-        for i in range(len(self.entities) - 1):
+        for i in range(len(self.entities)):
             entity = self.entities[i]
             transform = entity.transform
 
-            transform.rotation += glm.vec3(0.025,0.025,0.025) * 10.0
-
-        face_transform = self.entities[len(self.entities) - 1].transform
-        face_transform.rotation += glm.vec3(0.0, 0.0, 0.025) * 100.0
+            transform.rotation += glm.vec3(0.0,0.025,0.0) * 4.0
+            transform.position.z = 0.25 * math.sin(i - glfw.get_time())
 
         self.renderer.update()

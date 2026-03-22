@@ -26,15 +26,29 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     // specular
-    float specularStrength = 1.0;
     vec3 viewDir = normalize(-FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor;
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    spec = pow(max(dot(norm, halfwayDir), 0.0), 32.0);
+    vec3 specular = spec * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * texRGB;
+    // simple attenuation
+    bool gamma = true;
 
-    FragColor = vec4(result, texColor.a);
+    float max_distance = 1.5;
+    float distance = length(lightPos - FragPos);
+    float attenuation = 1.0 / (gamma ? distance * distance : distance);
+
+    diffuse *= attenuation;
+    specular *= attenuation;
+
+    texRGB *= (diffuse + specular + ambient);
+    if (gamma) {
+        texRGB = pow(texRGB, vec3(1.0/2.2));
+    }
+
+    FragColor = vec4(texRGB, texColor.a);
     if(FragColor.a < 0.1)
         discard;
 }
