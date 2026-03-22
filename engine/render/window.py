@@ -63,6 +63,7 @@ class Window:
         glViewport(0, 0, self.width, self.height)
 
         fps = 0.0
+        wire_toggle = False
 
         while not glfw.window_should_close(self.window):
             if self.current_scene:
@@ -77,12 +78,23 @@ class Window:
                 self.frame_count = 0
                 self.start_time = current_time
 
+            self.impl.process_inputs()
+
             imgui.new_frame()
 
-            imgui.begin("Statistics")
-            imgui.text("Current FPS")
-            imgui.text(str(fps))
+            imgui.begin("Settings")
+
+            imgui.text(f"FPS: {str(fps)}")
+            if imgui.button("Wireframe"):
+                wire_toggle = not wire_toggle
+
             imgui.end()
+
+            if wire_toggle:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+                # glPolygonMode(GL_FRONT_AND_BACK, GL_POINT)
+            else:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
             imgui.render()
             self.impl.render(imgui.get_draw_data())

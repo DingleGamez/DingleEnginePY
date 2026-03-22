@@ -16,11 +16,14 @@ class Renderer:
     def start(self):
         glEnable(GL_DEPTH_TEST)
         # glEnable(GL_FRAMEBUFFER_SRGB)
+
         glEnable(GL_CULL_FACE)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glFrontFace(GL_CCW)
         glCullFace(GL_BACK)
+        glLineWidth(2.0)
+        glPointSize(5.0)
 
         self.shader.use()
 
