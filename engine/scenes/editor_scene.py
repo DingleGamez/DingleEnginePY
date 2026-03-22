@@ -49,10 +49,16 @@ class EditorScene(Scene):
                 if curr >= 3:
                     curr = 0
 
+        room = Entity(id)
+        room.transform.position = glm.vec3(0.0, -0.25, -1.0)
+        room.transform.scale = glm.vec3(1.0, 1.0, 1.0) * 10.0
+        room.add_component(Model("resources/models/room/model.obj"))
+        self.entities = np.append(self.entities, room)
+
         self.renderer.start()
 
     def update(self):
-        for i in range(len(self.entities)):
+        for i in range(len(self.entities) - 1):
             entity = self.entities[i]
             transform = entity.transform
 

@@ -12,7 +12,7 @@ uniform sampler2D texSampler;
 void main()
 {
      // ambient
-    float ambientStrength = 0.15;
+    float ambientStrength = 0.0;
     vec3 ambient = ambientStrength * lightColor;
 
     // texture
