@@ -1,14 +1,16 @@
 from engine.render.texture import Texture
 
 from OpenGL.GL import *
+import numpy as np
 
 class Mesh:
-    def __init__(self, vertices, indices, normals, texcoords, color):
+    def __init__(self, vertices, indices, normals, texcoords, textures, color):
         self.vertices = vertices
         self.indices = indices
         self.normals = normals
         self.texcoords = texcoords
-        self.texture = Texture(None, color)
+        self.textures = textures
+        self.color = color
         self.vao, self.vao, self.ebo = None, None, None
 
         self.setup_mesh()
@@ -41,14 +43,17 @@ class Mesh:
 
         glBindVertexArray(0)
 
-        self.texture.start()
-
     def draw(self, shader):
-        self.texture.bind()
-        shader.upload_texture("texSampler", 0)
+        shader.upload_vec3("meshColor", self.color[0], self.color[1], self.color[2])
+
+        for i in range(len(self.textures)):
+            glActiveTexture(GL_TEXTURE0 + i)
+            glBindTexture(GL_TEXTURE_2D, self.textures[i].tex_id)
+            shader.upload_texture("texSampler", i)
 
         glBindVertexArray(self.vao)
         glDrawElements(GL_TRIANGLES, len(self.indices), GL_UNSIGNED_INT, None)
         glBindVertexArray(0)
 
         glActiveTexture(GL_TEXTURE0)
+

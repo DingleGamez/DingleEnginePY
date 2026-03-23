@@ -10,20 +10,18 @@ class Renderer:
     def __init__(self, camera, scene):
         self.camera = camera
         self.scene = scene
-        self.shader = Shader("engine/shaders/default_shader.glsl")
+        self.shader = Shader("engine/shaders/default.glsl")
         self.shader.compile()
 
     def start(self):
         glEnable(GL_DEPTH_TEST)
-        # glEnable(GL_FRAMEBUFFER_SRGB)
-
+        glDepthFunc(GL_LESS)
+        glEnable(GL_MULTISAMPLE)
         glEnable(GL_CULL_FACE)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glFrontFace(GL_CCW)
         glCullFace(GL_BACK)
-        glLineWidth(2.0)
-        glPointSize(5.0)
 
         self.shader.use()
 

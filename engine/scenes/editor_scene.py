@@ -1,15 +1,15 @@
-import time
-
 from engine.entities.camera import Camera
 from engine.scenes.scene import Scene
 from engine.entities.entity import Entity
 from engine.components.model import Model
 from engine.render.renderer import Renderer
+from engine.listeners.key_listener import KeyListener
 
 import numpy as np
 import math
 from pyglm import glm
 import glfw
+import time
 
 class EditorScene(Scene):
     def __init__(self):
@@ -19,50 +19,39 @@ class EditorScene(Scene):
         super().__init__()
 
     def start(self):
-        models = [
-            "resources/models/charmander/model.obj",
-            "resources/models/pikachu/model.obj",
-            "resources/models/cubone/model.obj"
-        ]
-        sizes = [
-            0.75, 0.65, 1,
-        ]
-        offsets_y = [
-            -0.25,0.0,0.0
-        ]
-
-        id = 0
-        curr = 0
-        count = 1
-
-        for x in range(-count,count + 1):
-            for y in range(-count,count + 1):
-                cube = Entity(id)
-                cube.transform.position = glm.vec3(float(x * 0.75),float(y * 0.75) + offsets_y[curr],0.0)
-                cube.transform.scale = glm.vec3(1.0,1.0,1.0) * sizes[curr]
-                cube.add_component(Model(models[curr]))
-                self.entities = np.append(self.entities, cube)
-
-                id += 1
-                curr += 1
-
-                if curr >= 3:
-                    curr = 0
-
-        room = Entity(id)
-        room.transform.position = glm.vec3(0.0, -0.25, -1.0)
-        room.transform.scale = glm.vec3(1.0, 1.0, 1.0) * 10.0
-        room.add_component(Model("resources/models/room/model.obj"))
-        self.entities = np.append(self.entities, room)
-
         self.renderer.start()
 
-    def update(self):
-        for i in range(len(self.entities) - 1):
-            entity = self.entities[i]
-            transform = entity.transform
+        model = Entity(0)
+        model.transform.position = glm.vec3(0.0, 10.0, 0.0)
+        model.transform.scale = glm.vec3(1.0, 1.0, 1.0)
 
-            transform.rotation += glm.vec3(0.0,0.025,0.0) * 4.0
-            transform.position.z = 0.25 * math.sin(i - glfw.get_time())
+        model.add_component(Model("resources/models/backpack/backpack.obj"))
+        self.entities = np.append(self.entities, model)
+
+    def update(self, dt):
+        kl = KeyListener()
+
+        cam_velocity = 50.0
+        cam_turn_speed = 100.0
+
+        if kl.is_key_pressed(glfw.KEY_W):
+            self.camera.position += self.camera.cameraFront * cam_velocity * dt
+        if kl.is_key_pressed(glfw.KEY_S):
+            self.camera.position -= self.camera.cameraFront * cam_velocity * dt
+        if kl.is_key_pressed(glfw.KEY_A):
+            self.camera.position -= self.camera.cameraRight * cam_velocity * dt
+        if kl.is_key_pressed(glfw.KEY_D):
+            self.camera.position += self.camera.cameraRight * cam_velocity * dt
+
+        if kl.is_key_pressed(glfw.KEY_UP):
+            self.camera.pitch += cam_turn_speed * dt
+        if kl.is_key_pressed(glfw.KEY_DOWN):
+            self.camera.pitch -= cam_turn_speed * dt
+        if kl.is_key_pressed(glfw.KEY_LEFT):
+            self.camera.yaw -= cam_turn_speed * dt
+        if kl.is_key_pressed(glfw.KEY_RIGHT):
+            self.camera.yaw += cam_turn_speed * dt
+
+        # self.entities[0].transform.rotation.x = -90.0
 
         self.renderer.update()
